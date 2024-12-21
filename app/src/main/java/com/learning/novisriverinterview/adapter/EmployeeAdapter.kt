@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.learning.novisriverinterview.R
 import com.learning.novisriverinterview.model.Employee
 
@@ -28,6 +30,7 @@ class EmployeeAdapter(): PagingDataAdapter<Employee, EmployeeAdapter.EmployeeVie
         getItem(position)?.let {
             holder.employeeName.text=it.name
             holder.id.text=it.id.toString()
+            Glide.with(holder.image).load(it.profileUrl).transform(CenterCrop()).into(holder.image)
         }
     }
 
