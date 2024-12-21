@@ -13,8 +13,7 @@ class MyFileProvider : ContentProvider() {
 
     companion object {
         const val AUTHORITY = "com.learning.novisriverinterview.contentprovider.fileprovider"
-        val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY/files")
-        const val FILE_PATH = "/storage/data.json"
+        val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY/files/data.json")
         const val COLUMN_DATA = "data"
     }
 
@@ -26,10 +25,9 @@ class MyFileProvider : ContentProvider() {
     }
 
     private fun startFileObserver() {
-        val file = File(FILE_PATH)
+        val file = File(context?.getExternalFilesDir(null), "data.json")
         if (!file.exists()) return
-        fileObserver = object : FileObserver(file.absolutePath,
-            MODIFY or CREATE or DELETE) {
+        fileObserver = object : FileObserver(file.absolutePath, MODIFY or CREATE or DELETE) {
             override fun onEvent(event: Int, path: String?) {
                 if (event == MODIFY || event == CREATE || event == DELETE) {
                     context?.contentResolver?.notifyChange(CONTENT_URI, null)
@@ -46,20 +44,16 @@ class MyFileProvider : ContentProvider() {
         selectionArgs: Array<out String>?,
         sortOrder: String?
     ): Cursor? {
-        val file = File(FILE_PATH)
+        val file = File(context?.getExternalFilesDir(null), "data.json")
         if (!file.exists()) return null
-        val data = readDataFromFile(file)
+        val data = file.readText()
         val cursor = MatrixCursor(arrayOf(COLUMN_DATA))
         cursor.addRow(arrayOf(data))
         return cursor
     }
 
-    private fun readDataFromFile(file: File): String {
-        return file.readText()
-    }
-
     override fun getType(uri: Uri): String? {
-        return "vnd.android.cursor.item/vnd.com.example.myapp.file"
+        return "vnd.android.cursor.item/vnd.$AUTHORITY.file"
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
@@ -80,7 +74,8 @@ class MyFileProvider : ContentProvider() {
     }
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        val file = File(FILE_PATH)
+        if (uri != CONTENT_URI) throw FileNotFoundException("Invalid URI: $uri")
+        val file = File(context?.getExternalFilesDir(null), "data.json")
         if (!file.exists()) throw FileNotFoundException("File not found")
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
     }

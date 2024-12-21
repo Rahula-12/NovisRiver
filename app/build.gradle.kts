@@ -57,6 +57,7 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-paging:$room_version")
 
 // Retrofit dependencies
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
